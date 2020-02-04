@@ -36,6 +36,21 @@
 
       .reveal section img { border: none; }
 
+      code { background: #333 }
+
+      .two-column {
+        display: grid; 
+        grid-row-gap: 10px; 
+        grid-column-gap: 10px; 
+        grid-template-columns: auto auto;
+      }
+
+      .two-column table {
+        color: white;
+        font-size: 0.8em;
+      }
+
+
     </style>
 
 	</head>
@@ -71,15 +86,370 @@
         </section>
 
         <section>
+          <h2>About the System</h2>
+          <ul>
+            <li>Open Source</li>
+            <li>Built on Csound</li>
+            <li>Three parts
+              <ul>
+                <li>livecode.orc: user-code library (clock, hex, fade, mixer, instruments)</li>
+                <li>livecode.csd: main entry for desktop server usage</li>
+                <li>live.csound.com: all-in-one web interface (editor, Csound, livecode.orc)</li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <div>Please open https://live.csound.com now.</div>
+        </section>
+
+
+        <section>
+          <h2>Csound Basics</h2>
+        </section>
+
+        <section>
+          <h2>Instrument Definitions</h2>
+
+          <pre><code>
+instr 1  ; numbered instrument 
+  ; init or performance code
+  print(p1)
+endin
+
+instr Sound1  ; named instrument 
+  ; init or performance code
+  print(p1)
+endin
+          </code></pre>
+          <ul>
+            <li>Use ctrl-e or cmd-e to evaluate current block of code.</li>
+            <li>Unit-generators are called opcodes in Csound, can be used like function calls</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Opcodes</h2>
+          <ul>
+            <li>Each opcode has an init-rate "constructor" function and block-rate performance function</li>
+            <li>Some opcodes only run at init-rate (most of what we'll use today)</li>
+            <li>Others opcodes run at block-rate (for sound generation and processing)</li>
+        </section>
+
+        <section>
+          <h2>PFields</h2>
+
+          <pre><code>
+instr 1  
+  print(p1, p2, p3)
+endin
+
+schedule(1, 0, 1)
+          </code></pre>
+          <ul>
+            <li>p1 - number of instrument</li>
+            <li>p2 - start time of instance in seconds</li>
+            <li>p3 - duration of instance in seconds</li>
+            <li>p4... - user-definable</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>PFields</h2>
+
+          <ul>
+            <li>Use in instrument to read from parameter field without declaration</li>
+            <li>If param not given, defaults to 0</li>
+            <li>User should provide pfield in schedule call</li>
+            <li>May be number or String</li>
+          </ul>
+        </section>
+
+
+        <section>
+          <h2>Variables</h2>
+
+          <pre><code>
+instr 1  
+  ival = 2
+  print(ival)
+endin
+
+schedule(1, 0, 1)
+          </code></pre>
+          <ul>
+            <li>first-letter denotes data type + rate</li>
+            <li>i : init-rate number</li>
+            <li>k : control-rate number</li>
+            <li>a : audio-rate block of numbers</li>
+            <li>S : String</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Arrays</h2>
+          <pre><code>
+gkvals[] = array(0,2,4,6) 
+instr 1  
+  print(rand(gkvals))
+  print(i(gkvals, 3))
+endin
+
+schedule(1, 0, 1)
+          </code></pre>
+
+          <ul>
+            <li>Can index using var[index] to access value</li>
+            <li>Oddities due to concept of rates</li>
+            <li>Not that important for today's workshop</li>
+          </ul>
+
+        </section>
+
+
+        <section>
+          <h2>CSLC Basics</h2>
+        </section>
+
+        <section>
+          <h2>Shortcuts</h2>
+          <ul>
+            <li>ctrl-e : Evaluate selected code or current code block</li>
+            <li>ctrl-shift-e : Evaluate code at measure (has bug at moment)</li>
+            <li>ctrl-h : Insert hexplay block with auto-numbered fade</li>
+            <li>ctrl-e : Insert euclidplay block with auto-numbered fade</li>
+        </section>
+
+        <section>
+          <h2>P1 Callback Instrument</h2>
+          <pre><code>
+instr P1
+  schedule("BD", 0, p3, 0, ampdbfs(-12))
+endin
+          </code></pre>
+
+          <ul>
+            <li>P1 is executed every sixteenth-note of clock</li>
+            <li>use set_tempo(...) to change clock rate</li>
+            <li>p3 - duration of current sixteenth note</li>
+            <li>p4 - current clock tick</li>
+          </ul>
+
+        </section>
+
+        <section>
+          <h2>CSLC Demo</h2>
+        </section>
+
+        <section>
           <h1>Hex</h1>
         </section>
+
+        <section>
+          <h2>Hex Beats Overview</h2>
+          
+          <ul>
+            <li>Use of hexadecimal notation to notate rhythms</li>
+            <li>Binary digits represent on (1) or off (0) for notes</li>
+            <li>One hex value contains four bits (i.e., 4 sixteenth notes)</li>
+            <li>Condensed notation, easier to remember than binary digits</li>
+        </section>
+
+        <section>
+          <div>Please open https://bit.ly/hexbeats</div>
+        </section>
+
+        <section>
+          <h2>Hex Practice 1</h2>
+          <ul>
+            <li>Use hexplay shortcut within P1 instruments (ctrl-h)</li>
+            <li>Use percussion instruments BD, SD, CHH, Claves (see reference for others)</li>
+            <li>Use only 8 (1000) and 0 (0000) (i.e., quarter notes)</li>
+            <li>Examples: "8000" "8" "08" "0008"</li>
+        </section>
+
+        <section>
+          <h2>Hex Practice 2</h2>
+          <ul>
+            <li>Extend to notating with "a" (1010) and "2" (0010)</li>
+            <li>Examples: "a222" "a88a" "80a8"</li>
+        </section>
+
+        <section>
+          <h2>Hex Practice 3</h2>
+          <ul>
+            <li>Extend to notating with "f" (1111), "c" (1100), "3" (0011), and "9" (1001)</li>
+            <li>Examples: "f800" "cc88" "92a8"</li>
+        </section>
+
+        <section>
+          <h2>Hex Practice 4</h2>
+          <ul>
+            <li>Extend to notating with "f" (1111), "c" (1100), "3" (0011), and "9" (1001)</li>
+            <li>Examples: "f800" "cc88" "92a8"</li>
+        </section>
+
+        <section>
+          <h2>Hex Practice 5 (All Values)</h2>
+    
+          <div class="two-column">
+
+          <table>
+            <thead>
+              <tr><th>Hex</th><th>Binary</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>0</td><td>0000</td></tr>
+              <tr><td>1</td><td>0001</td></tr>
+              <tr><td>2</td><td>0010</td></tr>
+              <tr><td>3</td><td>0011</td></tr>
+              <tr><td>4</td><td>0100</td></tr>
+              <tr><td>5</td><td>0101</td></tr>
+              <tr><td>6</td><td>0110</td></tr>
+              <tr><td>7</td><td>0111</td></tr>
+            </tbody>
+          </table>
+
+          <table>
+            <thead>
+              <tr><th>Hex</th><th>Binary</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>8</td><td>1000</td></tr>
+              <tr><td>9</td><td>1001</td></tr>
+              <tr><td>a</td><td>1010</td></tr>
+              <tr><td>b</td><td>1011</td></tr>
+              <tr><td>c</td><td>1100</td></tr>
+              <tr><td>d</td><td>1101</td></tr>
+              <tr><td>e</td><td>1110</td></tr>
+              <tr><td>f</td><td>1111</td></tr>
+            </tbody>
+          </table>
+
+          </div>
+        </section>
+
 
         <section>
           <h1>Osc</h1>
         </section>
 
         <section>
+          <h2>Event-rate Oscillators</h2>
+
+          <ul>
+            <li>Repeating pattern generators good for pitch and amplitude curves</li>
+            <li>Combining (like additive synthesis) leads to interesting contours</li>
+            <li>Modulus can add interest</li>
+            <li>phs, phsb, phsm: gives a phase value (0-1.0) in given periods of ticks, beats, and measures respectively</li>
+          </ul> 
+        </section>
+
+          <section>
+            <h2>Practice 1: Sine, Cosine, Ramp</h2>
+
+            <ul>
+              <li>Try hexplay with instruments Sub5, Squine1, Organ3, and Bass</li>
+              <li>xsin(iphase, ioffset, irange)</li>
+              <li>xcos(iphase, ioffset, irange)</li>
+              <li>xlin(iphase, imin, imax) </li>
+            </ul>
+
+          </section>
+
+            <section>
+              <h2>Practice 2 - Wavetable</h2>
+              <ul>
+                <li>first arg: phase or period</li>
+                <li>second arg: array (i.e., wavetable)</li>
+                <li>xosc: non-interpolating wavetable (phase)</li>
+                <li>xoscb: non-interpolating, period in beats</li>
+                <li>xoscm: non-interpolating, period in measures</li>
+                <li>xosci, xoscib, xoscim: linearly interpolating versions</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2>Wavetable - Examples</h2>
+              <ul>
+                <li>xoscb(2, array(0,1,2))</li>
+                <li>xoscm(4, array(0,0,0,1))</li>
+                <li>xoscim(2, array(0,12,5,7))</li>
+              </ul>
+            </section>
+
+
+        <section>
+          <h2>Practice 3 - Hex Osc</h2>
+          <ul>
+            <li>hexbeat(Shex_pattern) (returns 1 or 0)</li>
+            <li>hexbeat("f0ef") * 2</li>
+            <li>hexbeat("f38") * 4 (different length pattern than hexplay's hex string)</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Practice 4 - Combining</h2>
+          <ul>
+            <li>hexbeat("f0ef") * 2 + hexbeat("3fdbc") * 2</li>
+            <li>xsin(phsb(4), 2,2) + xsin(phsb(2), 2, 2)</li>
+            <li>(xsin(phsb(4), 4,4) + xsin(phsb(2), 4, 4)) % 5</li>
+            <li>Easier to read/understand if you use variables and +=</li>
+          </ul>
+          <pre><code>
+iv = xsin(phsb(4), 4, 4)
+iv += xsin(phsb(2), 4, 4)
+hexplay("Organ3", 0, p3, in_scale(0, iv % 5), ampdbfs(-12)
+          </code></pre>
+        </section>
+
+        <section>
           <h1>Shift</h1>
+        </section>
+
+        <section>
+          <h2>Bitwise operations</h2>
+          <ul>
+            <li>Popularized by bytebeat</li>
+            <li>Useful at event-rate to create interesting patterns</li>
+            <li>Still researching</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Bitwise Operations</h2>
+
+          <div class="two-column">
+
+          <table>
+            <thead>
+              <tr><th>Operator</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>&lt;&lt;</td><td>Left Shift (0s from right)</td></tr>
+              <tr><td>&gt;&gt;</td><td>Right Arithmetic Shift</td></tr>
+              <tr><td>&amp;</td><td>bitwise AND</td></tr>
+              <tr><td>|</td><td>bitwise OR</td></tr>
+              <tr><td>#</td><td>bitwise XOR</td></tr>
+              <tr><td></td><td>bitwise NOT</td></tr>
+            </tbody>
+          </table>
+
+          </div>
+
+        </section>
+
+
+        <section>
+          <div>Please open https://bit.ly/learnshifts now.</div>
+        </section>
+
+        <section>
+          <h2>Practice 1</h2>
+          <pre><code>
+hexplay("Organ3", 0, p3, in_scale(0, (p4 | (p4 &lt;&lt; 1) % 11, ampdbfs(-12)
+          </code></pre>
         </section>
 
         <section>
