@@ -1,5 +1,17 @@
 # Shift
 
+This section involves techniques related to bitwise operations, namely:
+
+* left-shift
+* right-shift (arithmetic, logical)
+* bitwise-AND 
+* bitwise-OR
+* bitwise-XOR (exclusive or)
+
+While there are other operations working with bits (bitwise-NOT, rotations, etc.), I have not yet mapped out usage of these operations. This document will be updated once they have been explored further.
+
+## Source Signals
+
 * Powers of 2 rule bit sequences
 
 * Rate of change, dealing with powers of 2 for change
