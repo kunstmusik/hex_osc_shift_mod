@@ -50,6 +50,11 @@
         font-size: 0.8em;
       }
 
+      .small-table {
+        color: white;
+        font-size: 0.8em;
+      }
+
 
     </style>
 
@@ -74,6 +79,7 @@
             <li>Osc</li>
             <li>Shift</li>
             <li>Mod</li>
+            <li>Conclusions</li>
           </ol>
         </section>
 
@@ -411,18 +417,16 @@ hexplay("Organ3", 0, p3, in_scale(0, iv % 5), ampdbfs(-12)
         <section>
           <h2>Bitwise operations</h2>
           <ul>
-            <li>Popularized by bytebeat</li>
+            <li>Popularized by bytebeat (audio-rate)</li>
             <li>Useful at event-rate to create interesting patterns</li>
-            <li>Still researching</li>
+            <li>Still researching...</li>
           </ul>
         </section>
 
         <section>
           <h2>Bitwise Operations</h2>
 
-          <div class="two-column">
-
-          <table>
+          <table class="small-table">
             <thead>
               <tr><th>Operator</th><th>Description</th></tr>
             </thead>
@@ -431,29 +435,223 @@ hexplay("Organ3", 0, p3, in_scale(0, iv % 5), ampdbfs(-12)
               <tr><td>&gt;&gt;</td><td>Right Arithmetic Shift</td></tr>
               <tr><td>&amp;</td><td>bitwise AND</td></tr>
               <tr><td>|</td><td>bitwise OR</td></tr>
-              <tr><td>#</td><td>bitwise XOR</td></tr>
-              <tr><td></td><td>bitwise NOT</td></tr>
+              <tr><td>#</td><td>bitwise XOR (^)</td></tr>
+              <tr><td>¬</td><td>bitwise NOT (~)</td></tr>
             </tbody>
           </table>
 
-          </div>
-
         </section>
 
+
+        <section>
+          <h2>Basic Processing</h2>
+
+          <div>Input &rarr; Bitwise Formula &rarr; Constraint &rarr; Output</div>
+
+        </section>
 
         <section>
           <div>Please open https://bit.ly/learnshifts now.</div>
         </section>
 
         <section>
+          <h2>Shifts</h2>
+  
+          <ul>
+            <li><code>x &lt;&lt; n  &rarr;  x * 2<sup>n</sup></code></li>
+            <li><code>x &gt;&gt; n  &rarr;  x / 2<sup>n</sup></code></li>
+            <li>Left Shift: Only even numbers produced</li> 
+            <li>Right Shift: Arithmetic shift in Csound, issues around negative numbers (See <a href="https://en.wikipedia.org/wiki/Arithmetic_shift#Non-equivalence_of_arithmetic_right_shift_and_division">here</a>)</li> 
+            <li>Can think of it just as a multiplication/division of x, input curve still preserved</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Linear Input</h2>
+  
+          <ul>
+            <li>Bits flip at rate related to bit number</li>
+            <li>Left Shift: speeds up rate for higher bits</li> 
+            <li>Right Shift: slows down rate of change for bits</li> 
+            <li>See animation <a href="https://kunstmusik.github.io/learn-shifts/shift-rates.html">here</a></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>AND</h2>
+  
+          <ul>
+            <li><code>a &amp; b</code></li>
+            <li>Computes 1 when bit is both 1 in left and right hand side values</li>
+            <li>Right side (b) masks the left side (a)</li> 
+            <li>Possible generated values limited to permutations of all right hand bits</li>
+            <li>Linear input: period of output controlled by 2<sup>n</sup> where n is position of highest 1 in b</li> 
+          </ul>
+        </section>
+
+        <section>
           <h2>Practice 1</h2>
           <pre><code>
-hexplay("Organ3", 0, p3, in_scale(0, (p4 | (p4 &lt;&lt; 1) % 11, ampdbfs(-12)
+iv = (p4 &amp; 0x2) 
+hexplay("f",
+    "Organ3", p3, 
+    in_scale(0, iv), 
+    ampdbfs(-12))
           </code></pre>
         </section>
 
         <section>
+          <h2>OR</h2>
+  
+          <ul>
+            <li><code>a | b</code></li>
+            <li>Computes 1 when bit is either 1 in left or right hand side values</li>
+            <li>Preserves general input curve but adds variations</li>
+            <li>Linear input: period of general pattern controlled by 2<sup>n</sup> where n is position of highest 1 in b</li> 
+            <li>Needs constraint (e.g., modulus); pattern affected by modulus value (even/odd, power-of-two)</li> 
+          </ul>
+        </section>
+
+
+        <section>
+          <h2>Practice 2</h2>
+          <pre><code>
+start("ReverbMixer")
+xchnset("Organ3.rvb", 0.5)
+
+instr P1
+  hexplay("f", 
+    "Organ3", p3,
+    in_scale(0, (p4 | 0x5) % 16), 
+    ampdbfs(-20))   
+endin
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Practice 3</h2>
+          <pre><code>
+start("ReverbMixer")
+xchnset("Organ3.rvb", 0.5)
+
+instr P1
+  hexplay("f", 
+    "Organ3", p3,
+    in_scale(0, ((p4 &lt;&lt; 2) | (p4 &lt;&lt; 5)) % 10), 
+    ampdbfs(-12))  
+  
+  hexplay("f", 
+    "Organ3", p3,
+    in_scale(1, ((p4 &lt;&lt; 3) | (p4 &lt;&lt; 6)) % 10), 
+    fade_in(7, 128) * ampdbfs(-12))
+endin
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>XOR</h2>
+  
+          <ul>
+            <li><code>a # b</code></li>
+            <li>Computes 1 when bit is 1 either in left or right hand side values</li>
+            <li>Similar shape changes at larger level to OR, but introduces further variations, generally descending</li>
+            <li>Linear input: period of general pattern controlled by 2<sup>n</sup> where n is position of highest 1 in b</li> 
+            <li>Needs constraint (e.g., modulus); pattern affected by modulus value (even/odd, power-of-two)</li> 
+          </ul>
+        </section>
+
+
+        <section>
+          <h2>Practice 4</h2>
+          <pre><code>
+start("ReverbMixer")
+xchnset("Organ3.rvb", 0.5)
+
+instr P1
+  hexplay("f", 
+    "Organ3", p3,
+    in_scale(0, (p4 # 0x5) % 16), 
+    ampdbfs(-20))   
+endin
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Experimentation</h2>
+          <ul>
+            <li>Compound expressions</li>
+            <li>Experimentation with period via modulus constraint (LCM)</li>
+            <li>Time-varying right-hand side values</li>
+            <li>Non-linear inputs (i.e., xsin)</li>
+          </ul>
+        </section>
+
+        <section>
           <h1>Mod</h1>
+        </section>
+
+        <section>
+          <h2>Notes on %</h2>
+          <ul>
+            <li>Constrains LHS by wrapping in range of RHS</li>
+            <li>Linear input
+              <ul>
+                <li>Single %: useful for oscillation and control of period</li>
+                <li>Multiple %: control of overall period, subdivisions into complete and incomplete periods</li>
+              </ul>
+            </li>
+            <li>Non-linear input: reduces range, wraps, cuts up (with multiple %)</li>
+            <li>Useful for Additive/Subtractive rhythm processes</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Practice 1</h2>
+          <pre><code>
+instr P1
+  hexplay("f", 
+    "Organ3", p3,
+    in_scale(0, p4 % 16), 
+    ampdbfs(-12))   
+endin
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Practice 2</h2>
+          <pre><code>
+instr P1
+  hexplay("f", 
+    "Organ3", p3,
+    in_scale(0, p4 % 16 % 5), 
+    ampdbfs(-12))   
+endin
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Practice 3</h2>
+          <pre><code>
+instr P1
+  hexplay("f", 
+    "Organ3", p3,
+    in_scale(0, cycle(p4 % 16 % 5, array(0,4,2))), 
+    ampdbfs(-12))   
+endin
+          </code></pre>
+        </section>
+
+        <section>
+          <h1>Conclusions</h1>
+        </section>
+
+        <section>
+          <h2>Conclusions</h2>
+          <ul>
+            <li>Be aware of period (length of pattern)</li>
+            <li>Practice to stop thinking about things and become more intuition-driven</li>
+            <li>Hope these techniques were interesting!</li>
+          </ul>
         </section>
 
         <section>
